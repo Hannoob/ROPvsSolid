@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/ROPExample/ROPExample/bin/Debug/netcoreapp2.1
+/ROPExample/FSTestExample/bin/Debug/netcoreapp2.1
+/ROPExample/.vs/ROPExample/v15/Server/sqlite3
+/ROPExample/SOLIDExample/bin/Debug/netcoreapp2.1
+/ROPExample/SOLIDExample/obj
+/ROPExample/ROPExample/obj
+/ROPExample/FSTestExample/obj

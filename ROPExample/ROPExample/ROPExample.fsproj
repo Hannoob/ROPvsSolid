@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="DomainObjects\User.fs" />
+    <Compile Include="DomainObjects\Workout.fs" />
+    <Compile Include="DataAccessLayer\DataAccessObjects\UserDataObject.fs" />
+    <Compile Include="DataAccessLayer\DataAccessObjects\WorkoutDataObject.fs" />
+    <Compile Include="DataAccessLayer\DataAccessObjects\DataObjectFactory.fs" />
+    <Compile Include="DataAccessLayer\UserRepo.fs" />
+    <Compile Include="DataAccessLayer\WorkoutRepo.fs" />
+    <Compile Include="BusinessLogic\ROP.fs" />
+    <Compile Include="BusinessLogic\WorkoutHandler.fs" />
+    <Compile Include="BusinessLogic\UserHandler.fs" />
+    <Compile Include="Controllers\InputContracts\Login.fs" />
+    <Compile Include="Controllers\ResponseContracts\UserContract.fs" />
+    <Compile Include="Controllers\ResponseContracts\WorkoutContract.fs" />
+    <Compile Include="Controllers\ContractFactory.fs" />
+    <Compile Include="Controllers\UserController.fs" />
+    <Compile Include="Controllers\WorkoutController.fs" />
+    <Compile Include="Startup.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Integrations\" />
+  </ItemGroup>
+
+</Project>
