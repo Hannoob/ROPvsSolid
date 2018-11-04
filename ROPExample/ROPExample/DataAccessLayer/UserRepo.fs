@@ -3,13 +3,7 @@
 open DataAccessObjects
 
 let GenerateUser =
-    new UserDataObject("1","Hanno Brink","test@test")
+    new UserDataObject("1","Hanno Brink","test@test","password")
 
-let GetAllWorkouts =
-    [|  
-        GenerateUser;
-        GenerateUser
-    |]
-
-let GetUserForId id = 
-    GenerateUser
+let GetUserForDetails username = 
+    Ok GenerateUser

@@ -15,3 +15,8 @@ let tryWith f m =
         bind f m
     with 
     | e -> Error e 
+
+let unwrap m =
+    match m with
+    | Ok res -> res
+    | Error e -> Result.Error(e)

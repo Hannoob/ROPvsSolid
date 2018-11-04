@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SOLIDExample.DataAccessLayer
+namespace SOLIDExample.DomainObjects
 {
-    public class Workout
+    public class AuthenticationResponse
     {
-        public string Name { get; set; }
     }
 }
