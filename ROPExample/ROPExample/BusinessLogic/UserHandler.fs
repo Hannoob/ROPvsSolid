@@ -2,61 +2,59 @@
 
 open System
 open DomainObjects
+open Microsoft.Extensions.Logging;
 
-let AuthenticateUserImplementation 
+let AuthenticateUserImplementation
     (getUserDetailsI:string -> Result<User,_>)
-    (comparePasswordsI:string -> string -> Result<_,_>)
-    (emailClientI:string -> string -> unit)
-    (saveToHistoryLogI:User -> Action -> unit)
+    (comparePasswordsI:string -> string -> Result<unit,_>)
+    (emailClientI:string -> string -> Result<unit,_>)
     (username:string ,password:string) =
 
-    let validate (username:string ,password:string) =
+    let ``Validate that the input is not emply`` (username:string ,password:string) =
         if String.IsNullOrWhiteSpace(username) || String.IsNullOrWhiteSpace(password) then
-            Ok((username,password))
-        else
             Error("Invalid params")
+        else
+            Ok((username,password))
 
-    let getUserDetails (username:string, password:string) =
+    let ``Get user details from the DB`` (username:string, password:string) =
         username
         |> getUserDetailsI 
-        |> ROP.bind (fun (user) -> Ok (user, password))
+        |> ROP.map (fun (user) -> (user, password))
     
-    let comparePasswords (user:User, password:string) = 
-        comparePasswordsI
+    let ``Compare provided password with user password`` (user:User, password:string) = 
+        comparePasswordsI user.Password password
 
-    let emailClient (user) = 
-        emailClientI
+    let ``Email login confirmation to the client`` (user:User, password:string) = 
+        emailClientI user.Email "You have successfully logged in to your new awesome fitness app!"
 
-    let saveToHistoryLog (user) =
-        saveToHistoryLogI
+    let ``Log authentication to client history`` m =
+        match m with
+        | Ok (user:User,_) -> 
+            user.Id
+            |> printf "User %s has logged in successfully"
+            |> Log.Debug
+            m
+        | Error error -> 
+            Log.Error (printf "An error occurred during login of username %s:" username) error
+            m
 
-    let buildResponse m =
-        new User()
+    let ``Build authentication response`` (user:User, password:string) =
+        user
 
     let impl  = 
-        validate
-        >> ROP.bind getUserDetails
-        >> ROP.tee comparePasswords
-        >> ROP.tee emailClient
-        >> ROP.tee saveToHistoryLog
-        >> buildResponse
+        ``Validate that the input is not emply``
+        >> ROP.bind ``Get user details from the DB``
+        >> ROP.tee  ``Compare provided password with user password``
+        >> ROP.tee  ``Email login confirmation to the client``
+        >>          ``Log authentication to client history``
+        >> ROP.map  ``Build authentication response``
     
     impl (username ,password)
 
 
 let AuthenticateUser (username:string ,password:string) =
-    let comparePasswords (providedPassword:string,password:string) = 
-        Ok ()
-
-    let emailClient user message = 
-        Ok ()
-
-    let saveToHistoryLog user action =
-        Ok ()
-
     AuthenticateUserImplementation 
         UserRepo.GetUserForDetails
-        comparePasswords
-        emailClient
-        saveToHistoryLog
+        PasswordUtils.ComparePasswords
+        EmailService.EmailClient
         (username ,password)

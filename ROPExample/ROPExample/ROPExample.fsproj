@@ -14,12 +14,15 @@
     <Compile Include="DataAccessLayer\DataObjectFactory.fs" />
     <Compile Include="DataAccessLayer\UserRepo.fs" />
     <Compile Include="DataAccessLayer\WorkoutRepo.fs" />
+    <Compile Include="BusinessLogic\Logger.fs" />
+    <Compile Include="BusinessLogic\PasswordUtils.fs" />
     <Compile Include="BusinessLogic\ROP.fs" />
     <Compile Include="BusinessLogic\WorkoutHandler.fs" />
     <Compile Include="BusinessLogic\UserHandler.fs" />
     <Compile Include="Controllers\ResponseContracts\UserContract.fs" />
     <Compile Include="Controllers\ResponseContracts\WorkoutContract.fs" />
     <Compile Include="Controllers\InputContracts\Login.fs" />
+    <Compile Include="Controllers\ContractFactory.fs" />
     <Compile Include="Controllers\UserController.fs" />
     <Compile Include="Controllers\WorkoutController.fs" />
     <Compile Include="Startup.fs" />

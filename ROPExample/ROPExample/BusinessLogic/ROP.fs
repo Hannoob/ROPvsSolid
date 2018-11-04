@@ -3,20 +3,27 @@
 let bind f m =
     match m with
     | Ok res -> f res
-    | Error e -> Result.Error(e)
+    | Error e -> Error e
 
 let tee f m =
     match bind f m with
     | Ok res -> m
-    | Error e -> Result.Error(e)
+    | Error e -> Error e
+
+let map f m =
+    match m with
+    | Ok res -> Ok (f res)
+    | Error e -> Error e
 
 let tryWith f m =
     try
-        bind f m
+        map f m
     with 
-    | e -> Error e 
+    | e -> Error e.Message 
 
-let unwrap m =
+let unwrap f m =
     match m with
-    | Ok res -> res
-    | Error e -> Result.Error(e)
+    | Ok res -> 
+        f res |> ignore
+        m
+    | Error e -> Error e

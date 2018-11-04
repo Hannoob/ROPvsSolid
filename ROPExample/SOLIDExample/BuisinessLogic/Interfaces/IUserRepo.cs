@@ -1,4 +1,5 @@
 ﻿using SOLIDExample.DomainObjects;
+using SOLIDExample.Interfaces;
 
 namespace SOLIDExample.Interfaces
 {
