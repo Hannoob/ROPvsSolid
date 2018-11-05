@@ -21,7 +21,7 @@ let tryWith f m =
     with 
     | e -> Error e.Message 
 
-let unwrap f m =
+let inspect f m =
     match m with
     | Ok res -> 
         f res |> ignore

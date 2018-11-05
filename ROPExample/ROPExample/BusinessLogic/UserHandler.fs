@@ -40,17 +40,14 @@ let AuthenticateUserImplementation
 
     let ``Build authentication response`` (user:User, password:string) =
         user
-
-    let impl  = 
-        ``Validate that the input is not emply``
-        >> ROP.bind ``Get user details from the DB``
-        >> ROP.tee  ``Compare provided password with user password``
-        >> ROP.tee  ``Email login confirmation to the client``
-        >>          ``Log authentication to client history``
-        >> ROP.map  ``Build authentication response``
-    
-    impl (username ,password)
-
+ 
+    (username ,password)
+    |>          ``Validate that the input is not emply``
+    |> ROP.bind ``Get user details from the DB``
+    |> ROP.tee  ``Compare provided password with user password``
+    |> ROP.tee  ``Email login confirmation to the client``
+    |>          ``Log authentication to client history``
+    |> ROP.map  ``Build authentication response``
 
 let AuthenticateUser (username:string ,password:string) =
     AuthenticateUserImplementation 

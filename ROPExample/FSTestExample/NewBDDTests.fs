@@ -64,9 +64,9 @@ type ``User authentication tests`` () =
          ``and a valid username and password is provided``
         
         |> ``Then the result should be an OK response``
-        |> ROP.unwrap ``and the response should have the correct username``
-        |> ROP.unwrap ``and the response should have the correct user id``
-        |> ROP.unwrap ``and the response should have the correct email``
+        |> ROP.inspect ``and the response should have the correct username``
+        |> ROP.inspect ``and the response should have the correct user id``
+        |> ROP.inspect ``and the response should have the correct email``
         |> ignore
 
     [<Test>]
