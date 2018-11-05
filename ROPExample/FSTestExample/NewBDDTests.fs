@@ -10,32 +10,22 @@ type ``User authentication tests`` () =
     let ``Given an authentication handler`` =
         UserHandler.AuthenticateUserImplementation 
 
-    let ``and the user details exist in the db`` method =
-        let getUserDetailsFunction input =
-            Ok (new User("1","username","test@test.com","password"))
+    let ``and the user details exist in the db`` =
+        fun input -> Ok (new User("1","username","test@test.com","password"))
 
-        method getUserDetailsFunction
+    let ``and the password validation succeeds`` =
+        fun password1 password2 -> Ok ()
 
-    let ``and the password validation succeeds`` method =
-        let validatePasswordFunction password1 password2 =
-            Ok ()
+    let ``and the email sends successfully`` =
+        fun string1 string2 -> Ok ()
 
-        method validatePasswordFunction
+    let ``and the email does NOT send successfully`` =
+        fun string1 string2 -> Error ("Some major problem occurred")
 
-    let ``and the email sends successfully`` method =
-        let sendEmailFunction string1 string2 =
-            Ok ()
+    let ``and a valid username and password is provided`` =
+        ("username","password")
 
-        method sendEmailFunction
-
-    let ``and the email does NOT send successfully`` method =
-        let sendEmailFunction string1 string2 =
-            Error ("Some major problem occurred")
-
-        method sendEmailFunction
     
-    let ``and a valid username and password is provided`` method =
-        method ("username","password")
 
     let ``Then the result should be an OK response`` result =
         match result with
@@ -55,7 +45,6 @@ type ``User authentication tests`` () =
             Assert.Pass("The response should was unsucessful" + error)
             result
 
-
     let ``and the response should have the correct username`` (result:User) =
         result.Name |> should equal "username"
 
@@ -67,11 +56,13 @@ type ``User authentication tests`` () =
 
     [<Test>]
     member this.``Valid login test``() = 
+        
         ``Given an authentication handler``
-        |> ``and the user details exist in the db``
-        |> ``and the password validation succeeds``
-        |> ``and the email sends successfully``
-        |> ``and a valid username and password is provided``
+         ``and the user details exist in the db``
+         ``and the password validation succeeds``
+         ``and the email sends successfully``
+         ``and a valid username and password is provided``
+        
         |> ``Then the result should be an OK response``
         |> ROP.unwrap ``and the response should have the correct username``
         |> ROP.unwrap ``and the response should have the correct user id``
@@ -80,11 +71,13 @@ type ``User authentication tests`` () =
 
     [<Test>]
     member this.``Email fail test``() = 
+        
         ``Given an authentication handler``
-        |> ``and the user details exist in the db``
-        |> ``and the password validation succeeds``
-        |> ``and the email does NOT send successfully``
-        |> ``and a valid username and password is provided``
-        |> ``Then the result should be an Error response``
+         ``and the user details exist in the db``
+         ``and the password validation succeeds``
+         ``and the email does NOT send successfully``
+         ``and a valid username and password is provided``
+            
+        |>``Then the result should be an Error response``
         |> ignore
 
