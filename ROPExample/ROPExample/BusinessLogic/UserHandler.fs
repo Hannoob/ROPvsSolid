@@ -7,8 +7,7 @@ open Microsoft.Extensions.Logging;
 let AuthenticateUserImplementation
     (getUserDetailsI:string -> Result<User,_>)
     (comparePasswordsI:string -> string -> Result<unit,_>)
-    (emailClientI:string -> string -> Result<unit,_>)
-    (username:string ,password:string) =
+    (emailClientI:string -> string -> Result<unit,_>) =
 
     let ``Validate that the input is not emply`` (username:string ,password:string) =
         if String.IsNullOrWhiteSpace(username) || String.IsNullOrWhiteSpace(password) then
@@ -35,19 +34,18 @@ let AuthenticateUserImplementation
             |> Log.Debug
             m
         | Error error -> 
-            Log.Error (printf "An error occurred during login of username %s:" username) error
+            Log.Error (printf "An error occurred during login") error
             m
 
     let ``Build authentication response`` (user:User, password:string) =
         user
  
-    (username ,password)
-    |>          ``Validate that the input is not emply``
-    |> ROP.bind ``Get user details from the DB``
-    |> ROP.tee  ``Compare provided password with user password``
-    |> ROP.tee  ``Email login confirmation to the client``
-    |>          ``Log authentication to client history``
-    |> ROP.map  ``Build authentication response``
+    ``Validate that the input is not emply``
+    >> ROP.bind ``Get user details from the DB``
+    >> ROP.tee  ``Compare provided password with user password``
+    >> ROP.tee  ``Email login confirmation to the client``
+    >>          ``Log authentication to client history``
+    >> ROP.map  ``Build authentication response``
 
 let AuthenticateUser (username:string ,password:string) =
     AuthenticateUserImplementation 

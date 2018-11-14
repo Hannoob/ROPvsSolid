@@ -30,7 +30,6 @@ type ``User authentication tests`` () =
     let ``Then the result should be an OK response`` result =
         match result with
         | Ok response -> 
-            Assert.Pass("The response is OK")
             result
         | Error error -> 
             Assert.Fail("The response should have been successful:" + error)
@@ -42,7 +41,6 @@ type ``User authentication tests`` () =
             Assert.Fail("The response should have failed")
             result
         | Error error -> 
-            Assert.Pass("The response should was unsucessful" + error)
             result
 
     let ``and the response should have the correct username`` (result:User) =
@@ -53,6 +51,8 @@ type ``User authentication tests`` () =
 
     let ``and the response should have the correct user id`` (result:User) =
         result.Id |> should equal "1"
+
+    let ``that is all`` = ignore
 
     [<Test>]
     member this.``Valid login test``() = 
@@ -67,7 +67,7 @@ type ``User authentication tests`` () =
         |> ROP.inspect ``and the response should have the correct username``
         |> ROP.inspect ``and the response should have the correct user id``
         |> ROP.inspect ``and the response should have the correct email``
-        |> ignore
+        |> ``that is all``
 
     [<Test>]
     member this.``Email fail test``() = 
@@ -79,5 +79,5 @@ type ``User authentication tests`` () =
          ``and a valid username and password is provided``
             
         |>``Then the result should be an Error response``
-        |> ignore
+        |> ``that is all``
 

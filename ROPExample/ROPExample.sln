@@ -11,6 +11,11 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSTestExample", "FSTestExam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSTestExample", "CSTestExample\CSTestExample.csproj", "{3450A459-AD20-44BC-AA30-816008F69E4D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7F49FFCA-FA5D-4184-A5ED-45CE60326B5A}"
+	ProjectSection(SolutionItems) = preProject
+		BlogPost.md = BlogPost.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
