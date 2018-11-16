@@ -24,7 +24,6 @@ In this post, we will not focus on any of the specific principals and their appl
 
 1. Typically external depenencies are and large pieces of logic are hiden behind interfaces.
 In this example, we have a simple interface over a class that accesses some database.
-The exact implementation of this interface is not important, however
 
 ```csharp
 namespace SOLIDExample.Interfaces
@@ -35,6 +34,33 @@ namespace SOLIDExample.Interfaces
     }
 }
 ```
+The exact implementation of this interface is not important, however it might be interesting to show that this specific implementation just returns a random object.
+```csharp
+namespace SOLIDExample.DataAccessLayer
+{
+    public class UserRepo : IUserRepo
+    {
+        private UserDataAccessObject GenerateUser()
+        {
+            return new UserDataAccessObject()
+            {
+                UserId = "",
+                Email = "email@server.co.za",
+                Username = "Username",
+                Password = "Password"
+            };
+        }
+
+        public User GetUserDetails(string username)
+        {
+            return DataAccessObjectFactory.create(GenerateUser());
+        }
+    }
+}
+```
+This is the beauty of interfaces. It allows you to define the way of interacting with some resource, without bothering the calling code with all the implementation details, and also allows you to swap out implementations without having to change any of the calling code.
+This is also the reason why having your code separated by interfaces is such an integral part of writing testable code; Because it allows you to write an implementation that suits the scenario you would like to test.
+For example, you would prefer not to be bothered by an actual database when you are trying to test how your code will handle some error case on a DB read.
 
 ### BDD tests
 Behaviour driven development tests is the idea that testing should be done in a way that allows tests to act as documentation of the expected behaviour of
