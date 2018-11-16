@@ -22,10 +22,18 @@ This post does (poorly) explain some of the aspects of SOLID, BDD and ROP, howev
 ## A classic SOLID example, how to write good code.
 In this post, we will not focus on any of the specific principals and their applications, but rather examine the structure and tests of a "typical" project designed according to these principals. (This is code for: "I don't quite understand every one of these principals but I feel like my code looks similar to the examples I have seen")
 
-Typically external depenencies are and large pieces of logic are hiden behind interfaces:
-```javascript
-var s = "JavaScript syntax highlighting";
-alert(s);
+1. Typically external depenencies are and large pieces of logic are hiden behind interfaces.
+In this example, we have a simple interface over a class that accesses some database.
+The exact implementation of this interface is not important, however
+
+```csharp
+namespace SOLIDExample.Interfaces
+{
+    public interface IUserRepo
+    {
+        User GetUserDetails(string username);
+    }
+}
 ```
 
 ### BDD tests
