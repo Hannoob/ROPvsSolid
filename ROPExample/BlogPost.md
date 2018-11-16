@@ -1,7 +1,7 @@
 # Writing testable code in a functional style
 
 In this blog post we look at how functional and OOP code differ in the way that testable code is written.
-We will also try to make an argument for why functional programming lends itself much better to writing, not only clean, testable code, but also writing DRY tests.
+We will also try to make an argument for why functional programming lends itself much better to writing, not only clean, testable code, but also writing [DRY](https://www.google.com) tests.
 
 ## Disclaimers
 I am by no means an F# or a functional programming expert.
@@ -20,6 +20,13 @@ Finally, we assume that if tests are brittle or difficult to write, they will no
 This post does (poorly) explain some of the aspects of SOLID, BDD and ROP, however it would probably be better if you have some idea of what these things are before you start reading this. 
 
 ## A classic SOLID example, how to write good code.
+In this post, we will not focus on any of the specific principals and their applications, but rather examine the structure and tests of a "typical" project designed according to these principals. (This is code for: "I don't quite understand every one of these principals but I feel like my code looks similar to the examples I have seen")
+
+Typically external depenencies are and large pieces of logic are hiden behind interfaces:
+```javascript
+var s = "JavaScript syntax highlighting";
+alert(s);
+```
 
 ### BDD tests
 Behaviour driven development tests is the idea that testing should be done in a way that allows tests to act as documentation of the expected behaviour of
