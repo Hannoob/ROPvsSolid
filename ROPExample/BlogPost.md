@@ -211,7 +211,7 @@ public class Given_a_valid_username_and_password_When_a_user_authenticates_and_t
 ## Throwing all that we know about good design out of the window.
 Everything that we have talked about up to this point is basically what I think of when I hear the words "Clean Code". 
 However, recently I started working on a large project written in F# which is a pretty cool functional .net language.
-
+This for
 
 
 The solid pricipals are patterns that have been developed in order to deal with some of the common problems one encounters when writing large scale object oriented code.
