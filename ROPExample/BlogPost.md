@@ -1,30 +1,33 @@
-# Writing testable code with F#
+# Writing testable code in a functional style
 
 In this blog post we look at how functional and OOP code differ in the way that testable code is written.
-We will also try to make an argument for why functional programming lends itself much better to writing, not only clean, testable code, but also writing clean DRY tests.
+We will also try to make an argument for why functional programming lends itself much better to writing, not only clean, testable code, but also writing DRY tests.
 
 ## Disclaimers
 I am by no means an F# or a functional programming expert.
 Most of the opinions discussed in this post is my own, and most of the wisdom contained within this post was blatantly stolen (and probably mis-understood) from people that are way smarter than I.
 
-In this post, we will use F# and C# in order to demonstrate the examples, however, the idea is that the principals demonstrated should apply to any functional language.
+In this post, we will use F# and C# in order to demonstrate the examples, however, the idea is that the principals demonstrated should apply to any object oriented and functional language.
+
+This is not meant to be an in-depth tutorial on ROP and SOLID design, or functional code in general.
+It is aimed more at showcasing the readability benefits of writing code in a functional style when it comes to unit testing specifically
 
 ## A quick note about the assumptions made in this post.
 We work from the assumnption that if code is not testable, it is not good code.
 We assume that if code is testable, but not tested, it is not good code.
 Finally, we assume that if tests are brittle or difficult to write, they will not be written or maintained.
 
-This post does (poorly) explain some of the aspects of SOLID, BDD and ROP, however it would probably be better if you have some idea of what these things are bnefore you start reading this. 
-
+This post does (poorly) explain some of the aspects of SOLID, BDD and ROP, however it would probably be better if you have some idea of what these things are before you start reading this. 
 
 ## A classic SOLID example, how to write good code.
-There is also some debate around a concept called "test induced damage", whereby code is made more complicated in order to make it more testable.
-This concept ususally goes hand-in-hand with some of the arguments for SOLID design.
-The 5 principals of solid design are intended to serve as guidelines to writing more testable and maintainable code.
-### SOLID Design
 
 ### BDD tests
 Behaviour driven development tests is the idea that testing should be done in a way that allows tests to act as documentation of the expected behaviour of
+
+##Test induced damage
+There is also some debate around a concept called "test induced damage", whereby code is made more complicated in order to make it more testable.
+This concept ususally goes hand-in-hand with some of the arguments for SOLID design.
+The 5 principals of solid design are intended to serve as guidelines to writing more testable and maintainable code.
 
 ## Throwing all that we know about good design out of the window.
 The solid pricipals are patterns that have been developed in order to deal with some of the common problems one encounters when writing large scale object oriented code.
