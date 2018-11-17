@@ -328,8 +328,8 @@ If you got this last part, then you are sorted for functional programming, as th
 Admittedly, there are one or two other concepts that we could talk about, but really this is all we need to write these examples of "good code".
 It is also important to note that although these are ideas that functional languages do well, it is by no means impossible to achieve this same behaviour in OO languages with a bit of clever programming.
 
-### ROP programming and parameterize all the things
-Scott introduced me to the idea of Railway Oriented Programming.
+### ROP programming
+Scott's blog introduced me to the idea of Railway Oriented Programming.
 This is an idea that exploits one of the things that functional programming languages do well, called "composition", as explained earlier.
 Although I highly recomend reading Scott's blog to get a great explanation of this, I will attempt to explain it briefly.
 
@@ -422,7 +422,7 @@ This can almost be seen as a way to early exit the execution of the code without
 Notice that `bind` as we defined it, only works with methods that return Result types.
 We can also build a bunch of other "wrapper" functions to handle all kinds of things such as "dead-end" functions that do not return anything, or functions that wraps functions that do not return Result tipes, or could throw exceptions.
 You can really get creative here and feel free to build your own crazy wrappers.
-These are some of the ones I usually find myself creating:
+These are some of the ones I usually find myself creating the following functions.
 
 ```fsharp
 //Define our function wrap dead-end functions like database writes or even input validation
@@ -444,7 +444,7 @@ let tryWith functionToExecuteIfOK stateValue =
     with
     | error ->
         //and wrap errors in the error result state
-        ERROR (error.message)
+        ERROR (error.Message)
 
 //Define a wrapper that will wrap functions that do not return result types
 let tee functionToExecuteIfOK stateValue =
@@ -460,9 +460,308 @@ let tee functionToExecuteIfOK stateValue =
 That is all you need to know to fully understand how to write railway oriented programs.
 In the next section, we will look at how this idea fits into big testable system
 
-### Test induced damage
-There is also some debate around a concept called "test induced damage", whereby code is made more complicated in order to make it more testable.
+### A real-life example and parameterize all the things
+In order to examine how this will look in practice, I will use an example of a fictional Authentication endpoint and draw comparisons between the OO way and ROP style.
+But before we start, there is a little syntactic suggar that F# has that takes the railway style to the next level for me.
+I call it the double back-tick trick, and it simply allows you to add spaces to the names of methods.
+But this has some huge effects when it comes to code-readability.
+Just look at the example below!
+
+```fsharp
+let ``take an input value 4`` = 4
+let ``square it`` x = x*x
+let ``and print the answer`` x = printfn "%d" x
+
+``take an input value 4``
+|> ``square it``
+|> ``and print the answer``
+
+```
+
+Okay, now that we have that cool trck, lets look at some code.
+The basic flow of the program will be described by the railway code:
+
+```fsharp
+``Validate that the input is not emply``
+>> ROP.bind ``Get user details from the DB``
+>> ROP.tee  ``Compare provided password with user password``
+>> ROP.tee  ``Email login confirmation to the client``
+>>          ``Log authentication to client history``
+>> ROP.map  ``Build authentication response``
+```
+
+Now if this is not readable, then I do not know what is.
+But lets look at some of the complexity that is hidden behind these deceptively simple method names.
+
+```fsharp
+let AuthenticateUser =
+    let ``Validate that the input is not emply`` (username:string ,password:string) =
+        if String.IsNullOrWhiteSpace(username) || String.IsNullOrWhiteSpace(password) then
+            Error("Invalid params")
+        else
+            Ok((username,password))
+
+    let ``Get user details from the DB`` (username:string, password:string) =
+        username
+        |> UserRepo.getUserDetails 
+        |> ROP.map (fun (user) -> (user, password))
+    
+    let ``Compare provided password with user password`` (user:User, password:string) = 
+        PasswordUtils.comparePasswords user.Password password
+
+    let ``Email login confirmation to the client`` (user:User, password:string) = 
+        EmailService.EmailClient user.Email "You have successfully logged in to your new awesome fitness app!"
+
+    let ``Log authentication to client history`` m =
+        match m with
+        | Ok (user:User,_) -> 
+            user.Id
+            |> printf "User %s has logged in successfully"
+            |> Log.Debug
+            m
+        | Error error -> 
+            Log.Error (printf "An error occurred during login") error
+            m
+
+    let ``Build authentication response`` (user:User, password:string) =
+        user
+ 
+    ``Validate that the input is not emply``
+    >> ROP.bind ``Get user details from the DB``
+    >> ROP.tee  ``Compare provided password with user password``
+    >> ROP.tee  ``Email login confirmation to the client``
+    >>          ``Log authentication to client history``
+    >> ROP.map  ``Build authentication response``
+```
+
+Now we can see that most of the functions that we define in this method, are simply functions that wrap other functions in order to make them accept the paramaters needed to make them fit in the railway.
+This is because the input of a method in the railway, needs to match the output of the previous method.
+This is one of the drawbacks of ROP in my opinion, however, this is something that could possibly be addressed by the clever use of types.
+
+When we look at how this code interacts with its external dependencies such as the EmailClient, we can see that is basically calls a method in a different module which is almost like a static method, but it is not contained within a class.
+That is not testable code at all, however, this method is also not in a class, and therefore we cannot use constructor injection as in the SOLID example. (I mean, we could write our code in classes, but then we are not really using the functional paradigm to our advantage.)
+This is where we can use an idea by Scott called "Parameterize all the things". 
+In this context we will simply extract all the dependencies and pass them in as parameters.
+This is a different way to achieve inversion of control, but this way needs no framework to inject things.
+This is what the final, testable method would look like.
+
+```fsharp
+let AuthenticateUserImplementation
+    (getUserDetailsI:string -> Result<User,_>)
+    (comparePasswordsI:string -> string -> Result<unit,_>)
+    (emailClientI:string -> string -> Result<unit,_>) =
+
+    let ``Validate that the input is not emply`` (username:string ,password:string) =
+        if String.IsNullOrWhiteSpace(username) || String.IsNullOrWhiteSpace(password) then
+            Error("Invalid params")
+        else
+            Ok((username,password))
+
+    let ``Get user details from the DB`` (username:string, password:string) =
+        username
+        |> getUserDetailsI 
+        |> ROP.map (fun (user) -> (user, password))
+    
+    let ``Compare provided password with user password`` (user:User, password:string) = 
+        comparePasswordsI user.Password password
+
+    let ``Email login confirmation to the client`` (user:User, password:string) = 
+        emailClientI user.Email "You have successfully logged in to your new awesome fitness app!"
+
+    let ``Log authentication to client history`` m =
+        match m with
+        | Ok (user:User,_) -> 
+            user.Id
+            |> printf "User %s has logged in successfully"
+            |> Log.Debug
+            m
+        | Error error -> 
+            Log.Error (printf "An error occurred during login") error
+            m
+
+    let ``Build authentication response`` (user:User, password:string) =
+        user
+ 
+    ``Validate that the input is not emply``
+    >> ROP.bind ``Get user details from the DB``
+    >> ROP.tee  ``Compare provided password with user password``
+    >> ROP.tee  ``Email login confirmation to the client``
+    >>          ``Log authentication to client history``
+    >> ROP.map  ``Build authentication response``
+
+let AuthenticateUser (username:string ,password:string) =
+    AuthenticateUserImplementation 
+        UserRepo.GetUserForDetails
+        PasswordUtils.ComparePasswords
+        EmailService.EmailClient
+        (username ,password)
+```
+
+This way of doing things have the bennefit that you are now able to pass in any functions into the method, that has the same method signature.
+That means, that when we look at our `UserRepo`, we see the following simple piece of code.
+
+```fsharp
+let GenerateUser =
+    new UserDataObject("1","Hanno Brink","test@test","password")
+
+let GetUserForDetails username = 
+    GenerateUser 
+    |> DataObjectFactory.createUserDomainObject
+    |> Ok
+```
+
+And that is all, no interfaces, no abstractions, nothing.
+The method signature that we use as a parameter in the method, acts like an interface.
+This idea of not having an interface over my repo methods is one of the things that was very difficult for me to make peace with when I was first confronted with these ideas.
+But after seeing it in action on a more realistic example of code, I can now start to see the bennefits.
+
+
+It is also good for handling exceptions
+
+
+There is also some opinions around a concept called "test induced damage", whereby code is made more complicated in order to make it more testable.
 This concept ususally goes hand-in-hand with some of the arguments for SOLID design.
-The 5 principals of solid design are intended to serve as guidelines to writing more testable and maintainable code.
+Mark Seemann has a [talk](https://www.infoq.com/presentations/mock-fsharp-tdd) about BDD with F# where he discusses this aspect of F# code development, and I feel like looking at the repo method, and comparing it to the c# code makes makes a very good case for why SOLID might not be all that, in that we can achieve the same "high cohesion, low coupling" idea with a lot less code.
+In fact we achieve all these bennefits using nothing but functions that we pass in as parameters.
 
 ### Better BDD in F# by exploiting "Parameterize all the things" principal
+Okay, so we are pretty excited about the awesome code we can write with Functional Programming, but what does this mean for testing?
+This is actually the part that inspired me to write this project in the first place.
+Since we don't have interfaces anymore, we have to come up with a new way to replace the dependencies.
+Well, since the dependencies are only function calls that gets passed in as parameters, we can pass in our own little stubs, and then interrogate the result.
+Because the result is a "wrapped" type, we have to extract the value in order to test it.
+
+```fsharp
+type ``User authentication tests`` () =
+    [<Test>]
+    member this.``Valid login test``() = 
+        let result = 
+            AuthenticateUserImplementation 
+                fun input -> Ok (new User("1","username","test@test.com","password"))
+                fun password1 password2 -> Ok ()
+                fun string1 string2 -> Ok ()
+                (username ,password)
+
+        match result with
+            | Ok response -> 
+                response.Name |> should equal "username"
+            | Error error -> 
+                Assert.Fail("The response should have been successful:" + error)
+                result
+        
+```
+
+This is pretty cool, but we can make it better.
+One of the problems, is that this way of doing things really does not give us the same readability as the BDD tests we saw in C#. 
+These are not that readable, and that is something we can improve by defining the parameters as functions and using the "double back-tick tric" to give them descriptive names.
+As an added bonus, if we define these dependecies as function, we can re-use them in mutliple test cases.
+This is something that is often difficult to achieve with OO style tests.
+Finally, we can use "piping" to pipe our result through a bunch of asserts with descriptive names, and this has the effect of making even our asserts re-usable!
+As far as I know this is not something that is often done in testing, ever.
+We can also extract the "unwrapping" logic into a method so that we do not have to repeat that on every assert.
+This is what the resulting code would look like.
+
+```fsharp
+open FsUnit
+type ``User authentication tests`` () =
+    //Simply unwraps the result so that we can do asserts on the contents
+    let inspect assertFunction result =
+        match result with
+        | Ok responseValue -> 
+            assertFunction responseValue |> ignore
+            result //Pass the original result to the next function
+        | Error e -> Error e
+    
+    //---------------------------------------------------------------------------------------------    
+    //Dependencies
+    //---------------------------------------------------------------------------------------------
+    let ``Given an authentication handler`` = UserHandler.AuthenticateUserImplementation 
+
+    let ``and the user details exist in the db`` = fun input -> Ok (new User("1","username","test@test.com","password"))
+
+    let ``and the password validation succeeds`` = fun password1 password2 -> Ok ()
+
+    let ``and the email sends successfully`` = fun string1 string2 -> Ok ()
+
+    let ``and the email does NOT send successfully`` = fun string1 string2 -> Error ("Some major problem occurred")
+
+    let ``and a valid username and password is provided`` = ("username","password")
+
+    //---------------------------------------------------------------------------------------------  
+    //Asserts
+    //---------------------------------------------------------------------------------------------
+    let ``Then the result should be an OK response`` result =
+        match result with
+        | Ok response -> 
+            result
+        | Error error -> 
+            Assert.Fail("The response should have been successful:" + error)
+            result
+
+    let ``Then the result should be an Error response`` result =
+        match result with
+        | Ok response -> 
+            Assert.Fail("The response should have failed")
+            result
+        | Error error -> 
+            result
+
+    let ``and the response should have the correct username`` (result:User) =
+        result.Name |> should equal "username"
+
+    let ``and the response should have the correct email`` (result:User) =
+        result.Email |> should equal "test@test.com"
+
+    let ``and the response should have the correct user id`` (result:User) =
+        result.Id |> should equal "1"
+
+    let ``that is all`` = ignore //Stop the test from outputting anything
+    
+    //---------------------------------------------------------------------------------------------  
+    //Tests
+    //---------------------------------------------------------------------------------------------    
+
+    [<Test>]
+    member this.``Valid login test``() = 
+        
+        ``Given an authentication handler``
+         ``and the user details exist in the db``
+         ``and the password validation succeeds``
+         ``and the email sends successfully``
+         ``and a valid username and password is provided``
+        
+        |> ``Then the result should be an OK response``
+        |> inspect ``and the response should have the correct username``
+        |> inspect ``and the response should have the correct user id``
+        |> inspect ``and the response should have the correct email``
+        |> ``that is all``
+
+    [<Test>]
+    member this.``Email fail test``() = 
+        
+        ``Given an authentication handler``
+         ``and the user details exist in the db``
+         ``and the password validation succeeds``
+         ``and the email does NOT send successfully``
+         ``and a valid username and password is provided``
+            
+        |>``Then the result should be an Error response``
+        |> ``that is all``
+```
+
+When I saw this, my mind was blown, by giving our dependencies nice names, we where able to define the behaviour of our dependecies using words, and then giving our asserts nice names, we can describe the expected bahaviour in words.
+This looks a lot like many of the tests written using BDD frameworks, but this does not use any fancy frameworks.
+Just standard F# is used to achieve these readable re-usable tests.
+I also believe that this is just the tip of the iceberg, our re-usable asserts could also accept aditional parameters as input making it more re-usable.
+
+## Some drawbacks or ROP and ROP style testing
+I have two issues with this style of writing code and tests.
+The first is a pretty minor issue, and that is that 
+
+picture
+
+debugging
+
+## Closing arguments
+not a silver bullet
+want to evolve this
