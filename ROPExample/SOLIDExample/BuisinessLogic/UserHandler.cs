@@ -51,6 +51,7 @@ namespace SOLIDExample.BuisinessLogic
             catch (Exception ex)
             {
                 _log.LogDebug("Failed to send login confirmation email to client");
+                throw;
             }
 
             _log.LogDebug("User successfully logged in!");

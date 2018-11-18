@@ -61,7 +61,7 @@ namespace CSTestExample
         [Test]
         public void Then_The_Response_Object_Should_Have_The_Correct_UserId()
         {
-            response.UserId.Should().Be("1");
+            response.UserId.Should().Be("2");
         }
     }
 
@@ -102,7 +102,7 @@ namespace CSTestExample
         }
 
         [Test]
-        public void Then_the_method_should_throw_an_exception ()
+        public void Then_The_Response_Object_Should_Have_The_Correct_Username()
         {
             Assert.Throws<Exception>(() => handler.AuthenticateUser("username", "password"));
         }
