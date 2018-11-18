@@ -798,7 +798,7 @@ As demonstrated in the example below, the traditional C# tests are displayed in 
 In this example, I broke the code that would return a "userId".
 From just looking at the C# test results, it is immediately obvious what happened in the C# tests, as opposed to the F# tests that would take some debugging to actually find out what is actually broken.
 
-![How traditional BDD tests look when Visual Studio runs them, vs. how they look in the new ROP style](images/test.bmp "How traditional BDD tests look when Visual Studio runs them, vs. how they look in the new ROP style")
+![How traditional BDD tests look when Visual Studio runs them, vs. how they look in the new ROP style](https://github.com/Hannoob/ROPvsSolid/blob/master/ROPExample/Images/test.bmp "How traditional BDD tests look when Visual Studio runs them, vs. how they look in the new ROP style")
 
 ### 2. Speed
 
@@ -808,7 +808,7 @@ I am not sure if this was due to the code being faster, or the tests requiring l
 It gave me the idea that we might see more significant performance increases as the number of tests increases, because of the re-usability of so many of the test dependencies.
 Let's see how these tests perform when we add an additional test scenario.
 
-![How traditional BDD tests performs , vs. how ROP tests perform](images/testSpeeds.bmp "How traditional BDD tests performs , vs. how ROP tests perform")
+![How traditional BDD tests performs , vs. how ROP tests perform](https://github.com/Hannoob/ROPvsSolid/blob/master/ROPExample/Images/testSpeeds.bmp "How traditional BDD tests performs , vs. how ROP tests perform")
 
 And all of the sudden, the tests were a lot slower.
 This came as a bit of a surprize to me, and I am not sure why this is.
