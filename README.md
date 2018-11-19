@@ -1,24 +1,24 @@
 # Writing testable code in a functional style
 
-In this blog post we look at how functional and Object oriented (OO) code differ in the way that testable code is written.
+In this blog post we look at how functional and Object Oriented (OO) code differ in the way that testable code is written.
 We will also try to make an argument for why functional programming (FP) lends itself much better to writing, not only clean, testable code, but also writing [DRY](https://dzone.com/articles/is-your-code-dry-or-wet) tests.
 
 ## Disclaimers
 
 I am by no means an F# or a functional programming expert.
-All of the opinions discussed in this post is my own, and most of the wisdom contained within this post was blatantly stolen (and probably mis-understood) from people who are way smarter than I.
+All of the opinions discussed in this post is my own, and most of the wisdom contained within this post was blatantly stolen (and probably mis-understood) from people who are way smarter than I am.
 
 In this post, we will use F# and C# in order to demonstrate the examples, however, the idea is that the principals demonstrated should apply to any object oriented and functional language.
 
-This is not meant to be an in-depth tutorial on [Railway oriented programming (ROP)](https://fsharpforfunandprofit.com/rop/) and [SOLID design](https://scotch.io/bar-talk/s-o-l-i-d-the-first-five-principles-of-object-oriented-design), or functional code in general.
+This is not meant to be an in-depth tutorial on [Railway Oriented Programming (ROP)](https://fsharpforfunandprofit.com/rop/) and [SOLID design](https://scotch.io/bar-talk/s-o-l-i-d-the-first-five-principles-of-object-oriented-design), or functional code in general.
 It is aimed more at showcasing the readability and re-usability benefits of writing code in a functional style when it comes to unit testing specifically.
 However, it is also very likely that I start going down a rabbit hole when explaining some of the concepts, which is fine by me because planning out a well written post is way too much effort!
 
 ## Audience
 
 In order to get the most bang for your buck out of this work, I have decided to write most of it with two audiences in mind.
-The first is a non-technical person, or a OO programmer just casually looking at some of the many benefits that F# has to offer, or a FP programmer just looking at some ideas on how to structure code and tests.
-For this type of audience member I would recommend skipping the following chapters as these are a bit more technical and not as relevant to to the actual benefits of testing using functional code.
+The first is a non-technical person, or an OO programmer just casually looking at some of the many benefits that F# has to offer, or a FP programmer just looking at some ideas on how to structure code and tests.
+For this type of audience member, I would recommend skipping the following chapters as these are a bit more technical and not as relevant to the actual benefits of testing using functional code.
 
 [Some functional programming basics](#Some-functional-programming-basics)
 
@@ -31,14 +31,14 @@ Please note: This post does (poorly) explain some of the aspects of SOLID, BDD a
 
 I am aware that there is some debate on the topic of testing.
 I work from the assumption that if code is not testable, it is not good code.
-I assume that if code is testable, but not tested, it is not good code.
-Finally, I assume that if tests are brittle or difficult to write, they will not be written or maintained, causing bad code.
+I assume that if code is testable, but not tested, it is also not good code.
+Finally, I assume that if tests are brittle or difficult to write, they will not be written or maintained, resulting in bad code.
 
 ## A classic SOLID example, how to write good code
 
-In this post, we will not focus on any of the specific principals and their applications, but rather examine the structure and tests of a "typical" project designed according to these principals. (This is code for: "I don't quite understand every one of these principals but I feel like my code looks similar to the examples I have seen")
+In this post, we will not focus on any of the specific principals and their applications, but rather examine the structure and tests of a "typical" project designed according to some of these principals.
 
-### 1. Typically external dependencies and large pieces of logic are hiden behind interfaces.
+### 1. Typically external dependencies and large pieces of logic are hidden behind interfaces
 
 In this example, we have a simple interface over a class that accesses some database.
 
@@ -82,7 +82,7 @@ This is the beauty of interfaces. It allows you to define the way of interacting
 This is also the reason why having your code separated by interfaces is such an integral part of writing testable code; Because it allows you to write an implementation that suits the scenario you would like to test.
 For example, you would prefer not to be bothered by an actual database when you are trying to test how your code will handle some error or edge when reading from the DB.
 
-Typically during testing, we use tools such as [Moq](https://www.google.com) in order to do throwaway implementations of interfaces for testing purposes.
+Typically, during testing, we use tools such as [Moq](https://github.com/Moq/moq4) in order to do throwaway implementations of interfaces for testing purposes.
 
 ```csharp
 var fakeUser = new User()
@@ -99,10 +99,10 @@ var userRepo = new Mock<IUserRepo>();
         .Returns(fakeUser);
 ```
 
-This application of interfaces has some obvious bennefits, but how do we actually allow our code to not care about the specific implementation of the interface?
+This application of interfaces has some obvious benefits, but how do we actually allow our code to not care about the specific implementation of the interface?
 Well, this leads us to the second principal that matters in designing good software...
 
-### 2. External dependencies are injected into the constructors of classes.
+### 2. External dependencies are injected into the constructors of classes
 
 The idea is to invert the dependencies of classes by adding dependencies of classes as parameters in the constructor of the class, rather than having to new up these dependencies in the business logic class itself.
 (Disclaimer: There are other ways of handling dependencies that is not "constructor injection" however this is the most common and also my favorite method)
@@ -131,7 +131,7 @@ namespace SOLIDExample.BuisinessLogic
 }
 ```
 
-In practice, it is often some dependency injection framework that new up these classes, however, this pattern has the awesome advantage, in that it allows you to pass in your mock interface implementations into the business logic class when it it being set up for testing.
+In practice, it is often some dependency injection framework that new up these classes, however, this pattern has the awesome advantage, in that it allows you to pass in your mock interface implementations into the business logic class when it is being set up for testing.
 This is illustrated by this poor example of a test below.
 
 ```csharp
@@ -166,10 +166,10 @@ I personally like the idea of Behavior Driven Testing (BDT) or Behavior Driven D
 This method of testing has a couple of advantages over the traditional way of writing tests.
 One of the main advantages that I would like to focus on, is the fact that these tests are written in such a way that the structure of the test conveys information of what is being tested and what the expected behavior should be.
 This has the implication of the test acting as a sort of "living documentation" that will remain up to date and that anyone can understand.
-These tests are also very easy to maintain, because of the fact that each test is focussed on a very specific piece of behavior.
+These tests are also very easy to maintain, because of the fact that each test is focused on a very specific piece of behavior.
 
 The main principal behind this form of testing is that it should follow a "Given,When,Then" structure.
-The "Given" part explains the the state of the method being tested, "When" explains the action taken by the user, and the "Then" statements explain the expected behavior of the method.
+The "Given" part explains the state of the method being tested, "When" explains the action taken by the user, and the "Then" statements explain the expected behavior of the method.
 
 Below is an example of a fictional authentication method tested using this method:
 
@@ -231,7 +231,7 @@ public class Given_a_valid_username_and_password_When_a_user_authenticates_and_t
 }
 ```
 
-## Throwing all that we know about "good code" out of the window.
+## Throwing all that we know about "good code" out of the window
 
 Everything that we have talked about up to this point is basically what I think of when I hear the words "Clean Code".
 However, recently I started looking at large project written in F# which is a pretty cool functional .net language.
@@ -245,7 +245,7 @@ Unfortunately, I am not smart enough to tell you exactly what these are, however
 
 I do not blame myself to harshly for conflating the two ideas of "good code" and SOLID design, as there really aren't that many good resources and examples how to achieve these properties in a functional paradigm.
 There is also the reality that when I heard that I had to throw all the nice SOLID habits, that I had spent so much time learning and advocating for, out of the window, I was resistant to say the least.
-Another problem, was that there are lots of code snipets that demonstrate ways to implement many of these principals, however, there was nothing that I could look at and see the benefit on a large system with lots of complexity.
+Another problem, was that there are lots of code snippets that demonstrate ways to implement many of these principals, however, there was nothing that I could look at and see the benefit on a large system with lots of complexity.
 
 ### Some functional programming basics
 
@@ -258,7 +258,7 @@ If you can get around the F# syntax, the following example shows one example of 
 //This is a function that takes an X and a Y and adds them together
 let someMathFunction x = x + 1
 
-//This is how it it usually called
+//This is how it is usually called
 let normalAnswer = someMathFunction 2
 
 //Piping allows us to change the order of parameters. We take two, and push it through the function to get an answer
@@ -275,6 +275,7 @@ let pipedCombinedWay = 2 |> someMathFunction |> someMathFunction
 
 The last method can be seen as taking the value 2, using it as the input for the function "someMathFunction" and then taking the resulting value and using it as an input for the function "someMathFunction".
 This gives you the freedom to structure your code in such a way that it is almost understandable by any non-programmer.
+The only limitation is that the output type of the preceding function should match the input of the following it.
 
 ```fsharp
 let addOne x = x + 1
@@ -291,8 +292,8 @@ let printAnswer x = printfn "%d" x
 These functions are very simple, and could be written in much shorter ways, however this does give you the freedom to structure your code in such a way that it would allow you to read the steps in the function almost as a paragraph:
 "Take 2, Add one to it, add another one to that, and finally print the answer!"
 
-F# also allows a thing called composition, where you get to glue functions together.
-The only requirement is that the output of the first function, should be the same as the input of the second function:
+F# also allows for a thing called composition, where you get to glue functions together.
+And same as before, the only requirement is that the output of the first function, should be the same as the input of the second function:
 
 ```fsharp
 let addOne x = x + 1
@@ -351,7 +352,7 @@ match happyValue with
 
 If you got this last part, then you are sorted for functional programming, as this is probably as complicated as it gets!
 Admittedly, there are one or two other concepts that we could talk about, but really this is all we need to write these examples of "good code".
-It is also important to note that although these are ideas that functional languages do well, it is by no means impossible to achieve this same behaviour in OO languages with a bit of clever programming.
+It is also important to note that although these are ideas that functional languages do well, it is by no means impossible to achieve this same behavior in OO languages with a bit of clever programming.
 
 ### Railway oriented programming
 
@@ -402,8 +403,8 @@ let genericUnwrapFunction functionToExecuteIfOK stateValue =
 genericUnwrapFunction printSquareOfValue happyValue
 ```
 
-Now it is nice and generic, however we see that we have some default behaviour on the ERROR case that will only print the error message.
-We could take this default behaviour out and pass in some other function, but for the purposes of this example, we won't really care about passing in custom behaviour for the ERROR case.
+Now it is nice and generic, however we see that we have some default behavior on the ERROR case that will only print the error message.
+We could take this default behavior out and pass in some other function, but for the purposes of this example, we won't really care about passing  custom behavior for the ERROR case.
 This function does not return anything, but when we want to start to chain these functions together using the pipe operator (|>) or the composition operator (>>), these functions will have to start returning outputs that we can use as inputs for the following functions.
 One catch is that "matches" need to return the same type of output for all cases.
 This is where the idea of railway oriented programming starts.
@@ -442,7 +443,7 @@ let functionToExecuteLater =
 functionToExecuteLater OK (0) 
 ```
 
-Because our default behaviour for errors, is only to propagate them, we are can be sure that if an error gets generated in the `divide2ByNumber` function, the rest of the binds in the railway, will only propagate the error instead of trying to execute the function.
+Because our default behavior for errors, is only to propagate them, we are can be sure that if an error gets generated in the `divide2ByNumber` function, the rest of the binds in the railway, will only propagate the error instead of trying to execute the function.
 This can almost be seen as a way to early exit the execution of the code without having to throw and catch exceptions.
 
 Notice that `bind` as we defined it, only works with methods that return Result types.
@@ -505,7 +506,7 @@ let ``and print the answer`` x = printfn "%d" x
 
 ```
 
-Okay, now that we have that cool trick, lets look at some code.
+Okay, now that we have that cool trick, let's look at some code.
 The basic flow of the program will be described by the railway code:
 
 ```fsharp
@@ -518,7 +519,7 @@ The basic flow of the program will be described by the railway code:
 ```
 
 Now if this is not readable, then I do not know what is.
-But lets look at some of the complexity that is hidden behind these deceptively simple method names.
+But let's look at some of the complexity that is hidden behind these deceptively simple method names.
 
 ```fsharp
 let AuthenticateUser =
@@ -624,7 +625,7 @@ let AuthenticateUser (username:string ,password:string) =
         (username ,password)
 ```
 
-This way of doing things have the benefit that you are now able to pass in any functions into the method, that has the same method signature.
+This way of doing things has the benefit that you are now able to pass in any functions into the method, that has the same method signature.
 That means, that when we look at our `UserRepo`, we see the following simple piece of code.
 
 ```fsharp
@@ -644,14 +645,14 @@ But after seeing it in action on a more realistic example of code, I can now sta
 
 There are also some opinions around a concept called "test induced damage", whereby code is made more complicated in order to make it more testable.
 This concept usually goes hand-in-hand with some of the arguments for SOLID design.
-Mark Seemann has a [talk](https://www.infoq.com/presentations/mock-fsharp-tdd) about BDD with F# where he discusses this aspect of F# code development, and I feel like looking at the repo method, and comparing it to the c# code makes makes a very good case for why SOLID might not be "all that", in that we can achieve the same "high cohesion, low coupling" idea with a lot less code.
-In fact we achieve all these benefits using nothing but functions that we pass in as parameters.
+Mark Seemann has a [talk](https://www.infoq.com/presentations/mock-fsharp-tdd) about BDD with F# where he discusses this aspect of F# code development, and I feel like looking at the repo method, and comparing it to the C# code makes a very good case for why SOLID might not be "all that", in that we can achieve the same "high cohesion, low coupling" idea with a lot less code.
+In fact, we achieve all these benefits using nothing but functions that we pass in as parameters.
 
 Finally, when writing the C# example, using entirely fictional integrations, it was extremely difficult for me to know how and when to handle exceptions.
 I was unsure of which errors can be thrown where, and how it would affect the variables I had defined in my method.
 This was in complete contrast to the Railway method where every method is forced to have an explicit handler for both the OK and ERROR cases.
 I found this much more intuitive, and comforting, knowing that the inputs to my method would be exactly as I expect them. 
-No `null` values because of some improperly handled exception or some other unforseen changes to the state of my class.
+No `null` values because of some improperly handled exception or some other unforeseen changes to the state of my class.
 
 ### Better BDD in F# by exploiting "Parameterize all the things" principal
 
@@ -779,11 +780,11 @@ type ``User authentication tests`` () =
         |> ``that is all``
 ```
 
-When I saw this, my mind was blown, by giving our dependencies nice names, we where able to define the behaviour of our dependencies using words, and then giving our asserts nice names, we can describe the expected behavior in words.
+When I saw this, my mind was blown, by giving our dependencies nice names, we were able to define the behavior of our dependencies using words, and then giving our asserts nice names, we can describe the expected behavior in words.
 This looks a lot like many of the tests written using BDD frameworks, but this does not use any fancy frameworks.
 Just standard F# is used to achieve these readable re-usable tests.
 I also believe that this is just the tip of the iceberg, our re-usable asserts could also accept additional parameters as input making it more re-usable.
-Finally, coming back to one of our assumptions; "we assume that if tests are brittle or difficult to write, they will not be written or maintained, causing bad code".
+Finally, coming back to one of our assumptions; "we assume that if tests are brittle or difficult to write, they will not be written or maintained, resulting in bad code".
 Because of the high readability and re-usability of these test components, it is super easy to write and maintain.
 This, in my opinion, would lead to better code in the long term.
 
@@ -793,27 +794,28 @@ Despite how much I love this new way of writing and testing code, I have three i
 
 ### 1. Tooling
 
-The first is a pretty minor issue, and that is that the way the new ROP tests are structured, are not very compatible with how Visual Studio displays these test.
-As demonstrated in the example below, the traditional C# tests are displayed in such a way, that when any tests fail, it is clear from just looking at the test runner which tests failed, however, when looking at the F# tests, the exact test case that failed is not obvious.
+The first is a pretty minor issue, and that is that the way the new ROP tests are structured, are not very compatible with how Visual Studio displays these tests.
+As demonstrated in the example below, the traditional C# tests are displayed in such a way, that when any tests fail, it is clear from just looking at the test runner, which tests failed, however, when looking at the F# tests, the exact test case that failed is not obvious.
 In this example, I broke the code that would return a "userId".
-From just looking at the C# test results, it is immediately obvious what happened in the C# tests, as opposed to the F# tests that would take some debugging to actually find out what is actually broken.
+From just looking at the C# test results, it is immediately obvious what happened in the C# tests, as opposed to the F# tests that would take some debugging to find out what is actually broken.
 
 ![How traditional BDD tests look when Visual Studio runs them, vs. how they look in the new ROP style](https://github.com/Hannoob/ROPvsSolid/blob/master/ROPExample/Images/test.bmp "How traditional BDD tests look when Visual Studio runs them, vs. how they look in the new ROP style")
 
 ### 2. Speed
 
-As I was writing this post and taking screenshots of the tests running, I noticed that the new and improved ROP tests seemed to be quite a bit faster than the corresponding OOP tests when there where failing tests.
-The example above shows the performance of a single test case in both scenarios with one assert failing, and we see an improvement of about 30% in the speed in which the tests where executed.
-I am not sure if this was due to the code being faster, or the tests requiring less setup, or because of the fact that the OO tests have 3 actual test methods vs the ROP tests where there is only one, or some other factor all together.
-It gave me the idea that we might see more significant performance increases as the number of tests increases, because of the re-usability of so many of the test dependencies.
+As I was writing this post and taking screenshots of the tests running, I noticed that the new and improved ROP tests seemed to be quite a bit faster than the corresponding OOP tests when there were failing tests.
+The example above shows the performance of a single test case in both scenarios with one assert failing, and we see an improvement of about 30% in the speed in which the tests were executed.
+I am not sure if this was due to the code being faster, or the tests requiring less setup, or because of the fact that the OO tests have 3 actual test methods vs the ROP tests were there is only one, or some other factor all together.
+It gave me the idea that we might see more significant performance benefits as the number of tests increase, because of the re-usability of so many of the test dependencies.
 Let's see how these tests perform when we add an additional test scenario.
 
 ![How traditional BDD tests performs , vs. how ROP tests perform](https://github.com/Hannoob/ROPvsSolid/blob/master/ROPExample/Images/testSpeeds.bmp "How traditional BDD tests performs , vs. how ROP tests perform")
 
-And all of the sudden, the tests were a lot slower.
-This came as a bit of a surprize to me, and I am not sure why this is.
+All of a sudden, the tests were a lot slower.
+This came as a bit of a surprise to me, and I am not sure why this is.
 If anyone has any ideas on why this could be, or knows why my test might not be valid, please let me know.
 I think it might have something to do with the fact that failing tests take longer to execute than successful tests.
+(My colleague, Dean, pointed out to me that this may very well be related to the version of Visual Studio that I was using at the time. This will be an interesting experiment to repeat at some point in the future.)
 
 ### 3. Debugging
 
@@ -821,14 +823,13 @@ The final issue is more of a bother to me than the other two, and unfortunately,
 This is the fact that in Visual Studio, ROP style code, is much more difficult to step through when it comes to debugging time.
 This could be countered by saying that, generally, F# code requires a lot less debugging, but when you have to step through, it is not quite as easy as on the C# code.
 This is because each piece of logic consists of a bunch of functions glued together, and not disjunct steps like C# code.
-I guess it is possible that in the future, someone comes up with a better tool to debug these composed functions, but as it stands right now, it is not that easy to step through the code.
+I guess it is possible that in future, someone comes up with a better tool to debug these composed functions, but as it stands right now, it is not that easy to step through the code.
 
 ## Closing arguments
 
-So in the end, just like any other language or paradigm that came before this, it is not the silver bullet that will solve all the issues we've had with code, but I do think there are a few things that we can learn from these ideas that will change software everywhere for the better.
-I personally like the readability and how easy it is to write tests, as well as the way I hardly ever get surprized by the behaviour of the code I write, more than I dislike some of the minor kinks this may have.
+I personally like the readability and how easy it is to write tests, as well as the way I hardly ever get surprized by the behavior of the code I write, more than I dislike some of the minor kinks this may have.
 I am also a huge fan of the idea that I can basically copy and paste both my code, and my tests, and paste it into some document to serve as documentation for non-technical people.
 (I have never actually tried this, but please let me know if it works).
 
-Secondly, I think I am also wise enough to know that we as programmers are creative and lazy enough to write horrible code in whichever language or paradigm we are presented with.
-That is why I am hoping that this post opens up a discussion on this topic, with many people contributing to, or challenging these ideas, so that we can get to a point where we have established best-practices for writing functional code, with great examples to make it easy to understand.
+So, in the end, just like any other language or paradigm that came before this, it is not the silver bullet that will solve all the issues we've had with code, but I do think there are a few things that we can learn from these ideas that could change software everywhere for the better.
+Finally, I am hoping that this post furthers the discussion on the topic of good design principals for functional projects, with many people contributing to, or challenging these ideas, so that we can get to a point where we have established best-practices for writing functional code, with great examples to make it easy to understand.
