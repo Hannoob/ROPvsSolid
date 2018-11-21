@@ -474,7 +474,7 @@ let tryWith functionToExecuteIfOK stateValue =
         ERROR (error.Message)
 
 //Define a wrapper that will wrap functions that do not return result types
-let tee functionToExecuteIfOK stateValue =
+let map functionToExecuteIfOK stateValue =
     match stateValue with
     | OK x -> 
         x //Take x
@@ -755,13 +755,13 @@ type ``User authentication tests`` () =
     [<Test>]
     member this.``Valid login test``() = 
         
-        ``Given an authentication handler``
-         ``and the user details exist in the db``
-         ``and the password validation succeeds``
-         ``and the email sends successfully``
-         ``and a valid username and password is provided``
+        ``Given an authentication handler`` //This returns the function
+         ``and the user details exist in the db`` //Use this function as the first parameter
+         ``and the password validation succeeds`` //Use this function as the second parameter
+         ``and the email sends successfully``//Use this function as the third parameter
+         ``and a valid username and password is provided`` //Use this function as the final parameter
         
-        |> ``Then the result should be an OK response``
+        |> ``Then the result should be an OK response`` //Take the output and pipe it into this function
         |> inspect ``and the response should have the correct username``
         |> inspect ``and the response should have the correct user id``
         |> inspect ``and the response should have the correct email``
