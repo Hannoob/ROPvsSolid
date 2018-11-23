@@ -105,7 +105,7 @@ Well, this leads us to the second principal that matters in designing good softw
 ### 2. External dependencies are injected into the constructors of classes
 
 The idea is to invert the dependencies of classes by adding dependencies of classes as parameters in the constructor of the class, rather than having to new up these dependencies in the business logic class itself.
-(Disclaimer: There are other ways of handling dependencies that is not "constructor injection" however this is the most common and also my favorite method)
+(There are other ways of handling dependencies that is not "constructor injection" however this is the most common and also my favorite method)
 This allows whatever is "newing up" the business logic class to choose the implementations of the dependency interfaces.
 
 ```csharp
@@ -567,7 +567,7 @@ This is because the input of a method in the railway, needs to match the output 
 This is one of the drawbacks of ROP in my opinion, however, this is something that could possibly be addressed by the clever use of types.
 
 When we look at how this code interacts with its external dependencies such as the EmailClient, we can see that is basically calls a method in a different module which is almost like a static method, but it is not contained within a class.
-That is not testable code at all, however, this method is also not in a class, and therefore we cannot use constructor injection as in the SOLID example. (I mean, we could write our code in classes, but then we are not really using the functional paradigm to our advantage.)
+That does not look like testable code at all, furthermore, this method is also not in a class, and therefore we cannot use constructor injection as in the SOLID example. (I mean, we could write our code in classes, but then we are not really using the functional paradigm to our advantage.)
 This is where we can use an idea by Scott called "Parameterize all the things".
 In this context we will simply extract all the dependencies and pass them in as parameters.
 This is a different way to achieve inversion of control, but this way needs no framework to inject things.
@@ -640,6 +640,7 @@ let GetUserForDetails username =
 
 And that is all, no interfaces, no abstractions, nothing.
 The method signature that we use as a parameter in the method, acts like an interface.
+Because of the strong type checking in F# we are guaranteed that the code will not compile if the functions that gets passed in, does not conform to the expected type.
 This idea of not having an interface over my repo methods is one of the things that was very difficult for me to make peace with when I was first confronted with these ideas.
 But after seeing it in action on a more realistic example of code, I can now start to see the benefits.
 
