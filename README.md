@@ -301,7 +301,7 @@ let addOne x = x + 1
 let printAnswer x = printfn "%d" x
 
 let printAnswer = 
-    >> addOne 
+    addOne 
     >> addOne
     >> printAnswer
 
