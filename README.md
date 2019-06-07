@@ -432,12 +432,12 @@ let bind functionToExecuteIfOK stateValue =
 //Execute the code using pipes
 OK (0) 
 |> bind divide2ByNumber
-|> bind printSquareOfValue
+|> bind SquareOfValue
 
 //Or build a function that we can execute later
 let functionToExecuteLater = 
     bind divide2ByNumber
-    >> bind printSquareOfValue
+    >> bind SquareOfValue
 
 //Execute the built-up function
 functionToExecuteLater OK (0) 
