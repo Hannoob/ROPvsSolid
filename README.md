@@ -8,7 +8,7 @@ We will also try to make an argument for why functional programming (FP) lends i
 I am by no means an F# or a functional programming expert.
 All of the opinions discussed in this post are my own, and most of the wisdom contained within this post was blatantly stolen (and probably mis-understood) from people who are way smarter than I am.
 
-In this post, we will use F# and C# in order to demonstrate the examples, however, the idea is that the principals demonstrated should apply to any object oriented and functional language.
+In this post, we will use F# and C# in order to demonstrate the examples, however, the idea is that the principles demonstrated should apply to any object oriented and functional language.
 
 This is not meant to be an in-depth tutorial on [Railway Oriented Programming (ROP)](https://fsharpforfunandprofit.com/rop/) and [SOLID design](https://scotch.io/bar-talk/s-o-l-i-d-the-first-five-principles-of-object-oriented-design), or functional code in general.
 It is aimed more at showcasing the readability and re-usability benefits of writing code in a functional style when it comes to unit testing specifically.
@@ -36,7 +36,7 @@ Finally, I assume that if tests are brittle or difficult to write, they will not
 
 ## A classic SOLID example, how to write good code
 
-In this post, we will not focus on any of the specific principals and their applications, but rather examine the structure and tests of a "typical" project designed according to some of these principals.
+In this post, we will not focus on any of the specific principles and their applications, but rather examine the structure and tests of a "typical" project designed according to some of these principles.
 
 ### 1. Typically external dependencies and large pieces of logic are hidden behind interfaces
 
