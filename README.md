@@ -455,7 +455,7 @@ These are some of the ones I usually find myself creating and they are the follo
 //Define our function wrap dead-end functions like database writes or even input validation
 let tee functionToExecuteIfOK stateValue =
     //unwrap the input and Execute the function, 
-    match (bind functionToExecuteIfOK) with
+    match (bind functionToExecuteIfOK stateValue) with
     | OK x -> 
         //and if the result is a OK, Propagate the original value
         stateValue
